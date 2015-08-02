@@ -7,10 +7,7 @@ h1 {
     color: maroon;
     margin-left: 40px;
 }
-p {
-	font-size: 0.9em;
-	margin-left: 40px;
-}
+
 .axis path, 
 .axis line {
     fill: none;
@@ -20,15 +17,36 @@ p {
 
 .axis text {
     font-family: sans-serif;
-    font-size: 11px;
+    font-size: 0.8em;
 }
 .infopanel text {
-    font-family: sans-serif;
+    font-size: 0.9em;
     font-size: 11px;
 }
 .infopanel {
+    font-family: sans-serif;
+    margin-left: 40px;
     height: 3em;
     width: 480px;
     padding: 10px;
-    border: 1px solid #666;
+    border: 2px solid #666;
+}
+.resultblock {
+    font-family: sans-serif;
+    margin-left: 40px;
+    height: 3em;
+    width: 480px;
+    padding: 10px;
+    border: 2px solid #666; 
+}
+.dd select { /*http://bavotasan.com/2011/style-select-box-using-only-css/*/
+   background: transparent;
+   width: 268px;
+   padding: 5px;
+   font-size: 16px;
+   line-height: 1;
+   border: 0;
+   border-radius: 0;
+   height: 34px;
+   -webkit-appearance: none;
 }

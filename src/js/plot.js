@@ -1,18 +1,22 @@
 define(
     ['lib/d3.v3','colors'], function (ignore, colors) {
 
-    Plot = function (dataset) { 
+    Plot = function (metadata,dataset) { 
 
         //Use global d3
-
-        this.dataset = dataset
+        this.metadata = metadata;
+        this.dataset = dataset;
         
         this.Colors = new colors(); //console.log(this.Colors.forThisParty("CON"))
         
+
+        this.drawDropdown();
         this.drawInfopanel();
         this.drawSVG();
         this.addDataToPlot(this.dataset);
         this.drawDotSelector();
+
+        this.selectedConstituency = "None";
 
     };
 
@@ -20,15 +24,28 @@ define(
 
         //PUBLIC
 
+        returnConstituencyList: function(){
+
+            this.ddLabels=[];
+            this.ddOptions=[];
+
+            for (var i=0; i<this.dataset.length; i++){
+
+                this.ddLabels[i]=this.dataset[i][0];
+                this.ddOptions[i]=i;
+            };
+
+        },
+
         drawSVG: function(){
 
             //Width and height
             this.w = 624;
             this.h = 425;
-            this.padding = 50;
+            this.padding = 70;
 
             //Create SVG element
-            this.svg = d3.select("body")
+            this.svg = d3.select("#plot_content")
                 .append("svg")
                 .attr("width", this.w)
                 .attr("height", this.h);
@@ -36,12 +53,43 @@ define(
         },
 
         drawInfopanel: function(){
-
-            this.infopanel = d3.select("body")
-                .append("p")
-                .attr("class", "infopanel")  //Assign "infopanel" class
+            this.infopanel = d3.select("#info_panel")
+                .append("div")
+                .attr("class", "infopanel");  //Assign "infopanel" class
 
             this.infopanel.text("Plot data loading shortly...");
+        },
+
+        drawDropdown: function(){
+
+            //console.log(this.dataset);
+            var thisPlot = this;
+
+            this.returnConstituencyList();
+
+            var labels = this.ddLabels;
+            var options = this.ddOptions;
+
+            // Build the dropdown menu
+            this.dropdown = d3.select("#selectordd")
+                .append("select")
+                .attr("class", "dd")
+                .selectAll("option")
+                .data(options)
+                .enter()
+                .append("option")
+                // Provide available text for the dropdown options
+                .text(function(d) {return labels[d];})
+                
+
+            d3.select("select")
+                .on("change", function() {
+
+                    key = this.selectedIndex; //console.log(key); //
+                    console.log(thisPlot.ddLabels[key]);
+
+                    thisPlot.selectedConstituency = thisPlot.ddLabels[key];
+                });
         },
 
         drawDotSelector: function(){
@@ -49,23 +97,48 @@ define(
             var thisPlot = this;
 
             this.dotSelector = thisPlot.svg.append("circle")
-                // .attr("cx", 0)
-                // .attr("cy", 0)
-                // .attr("r", 10)               // set the radius
-                // .style("stroke-width", 2)    // set the stroke width
                 .style("stroke", "transparent")
                 .style("fill", "transparent");
 
         },
 
-        pointClicked: function(constituency,thisDot){
+        youClickedTheRightDot: function(constituency){
+
+            //var thisPlot = this;
+
+            if(constituency===this.selectedConstituency){
+                return true;
+            } else return false;
+
+        },
+
+        pointClicked: function(thisData,thisDot){
 
             var thisPlot = this;
 
-            //console.log(constituency);
-            thisPlot.infopanel.text("You clicked: " + constituency);
+            if( this.youClickedTheRightDot(thisData[0]) ){
+
+                var msg = "Yes. That is: ";
+
+            } else  var msg = "No. You clicked: ";
+            
+            //thisPlot.infopanel.text(thisData[0]); [ "Aldershot", 63.8,  14901, "CON"]
+
+            var tx = msg + thisData[0] + ": " + thisData[3] + " majority of " + thisData[2] + ". Turnout: " + thisData[1] + "%"
+
+            // var infoblock = thisPlot.infopanel.append("p")
+            // .attr("class", "resultblock");
+            thisPlot.infopanel.attr("class", "resultblock");
+
+            thisPlot.infopanel.style("border-color", function(d) {
+                var partyColor = thisPlot.Colors.forThisParty(thisData[3]); // fill colour from the result field
+                return partyColor;
+            });
+
+            thisPlot.infopanel.text(tx);
 
             thisPlot.dotSelected(thisDot);
+            //thisPlot.dotSelected(thisDot);
 
         },
 
@@ -97,7 +170,7 @@ define(
                 .range([this.padding, this.w-this.padding*2]);
 
             var yScale = d3.scale.linear()
-                .domain([0, d3.max(this.dataset, function(d) { return d[2]; })])
+                .domain([0, d3.max(this.dataset, function(d) { return (d[2]/1000); })]) // NOTE: majority is now in thousands!!
                 .range([this.h-this.padding, this.padding]); //
 
             //Define xAxis
@@ -120,7 +193,7 @@ define(
                   return xScale(d[1]);
                 })
                 .attr("cy", function(d) {
-                  return yScale(d[2]);
+                  return yScale((d[2]/1000)); // TO DO: majority is now in thousands!! make this scale by pulling scale from metadata
                 })
                 .attr("r", 8)               // set the radius
                 .style("stroke-width", 2)    // set the stroke width
@@ -132,20 +205,33 @@ define(
                   return thisPlot.Colors.forThisParty(d[3]); // fill colour from the result field
                 }) 
                 .on("click", function(d){
-                  return thisPlot.pointClicked(d[0],this);
+                  return thisPlot.pointClicked(d,this); // send rown of data and svg element to "clicked" method.
                 });
 
                 //Create X axis
                 thisPlot.svg.append("g")
-                  .attr("class", "axis")  //Assign "axis" class
+                  .attr("class", "x axis")  //Assign "axis" class
                   .attr("transform", "translate(0," + (this.h - this.padding) + ")")
                   .call(xAxis);
 
                 //Create Y axis
                 thisPlot.svg.append("g")
-                  .attr("class", "axis")
+                  .attr("class", "y axis")
                   .attr("transform", "translate(" + this.padding + ",0)")
                   .call(yAxis);
+
+                d3.select(".x.axis") 
+                    .append("text")
+                    .text(this.metadata[1]) 
+                    .attr("x", (this.w / 2) - this.padding)
+                    .attr("y", this.padding / 1.5);
+
+                d3.select(".y.axis") 
+                    .append("text")
+                    .text(this.metadata[2] + " (000)") 
+                    .attr("transform", "rotate (-90, -43, 0) translate(-280)");
+
+
 
                 thisPlot.infopanel.text("Click on a dot for more info"); // data loaded instructions
 
@@ -156,58 +242,4 @@ define(
     return Plot;
         
 });
-
-
-
-
-
-
-
-
-
-
-
-
-//             Plot1.prototype = {
-
-//                 drawSVG: function(){
-
-//                 //Width and height
-//                 this.w = 624;
-//                 this.h = 425;
-//                 this.padding = 50;
-
-//                 //Create SVG element
-//                 this.svg = d3.select("body")
-//                     .append("svg")
-//                     .attr("width", this.w)
-//                     .attr("height", this.h);
-
-//                 },
-
-//                 addDataToPlot: function(){
-
-
-
-//                 },
-
-//                 drawInfopanel: function(){
-
-//                     this.infopanel = d3.select("body")
-//                         .append("p")
-//                         .attr("class", "infopanel")  //Assign "axis" class
-
-//                     this.infopanel.text("Click on a dot");
-//                 },
-
-//                 pointClicked: function(constituency){
-
-//                   //console.log(constituency);
-//                   this.infopanel.text("You clicked: " + constituency);
-
-//                 }
-//             }
-
-
-
 
