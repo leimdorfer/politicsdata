@@ -53,6 +53,7 @@ define(
         },
 
         drawInfopanel: function(){
+            
             this.infopanel = d3.select("#info_panel")
                 .append("div")
                 .attr("class", "infopanel");  //Assign "infopanel" class
@@ -124,14 +125,14 @@ define(
             
             //thisPlot.infopanel.text(thisData[0]); [ "Aldershot", 63.8,  14901, "CON"]
 
-            var tx = msg + thisData[0] + ": " + thisData[3] + " majority of " + thisData[2] + ". Turnout: " + thisData[1] + "%"
+            var tx = msg + thisData[0] + ": " + thisData[4] + " majority of " + thisData[2] + ". Turnout: " + thisData[1] + "%"
 
             // var infoblock = thisPlot.infopanel.append("p")
             // .attr("class", "resultblock");
             thisPlot.infopanel.attr("class", "resultblock");
 
             thisPlot.infopanel.style("border-color", function(d) {
-                var partyColor = thisPlot.Colors.forThisParty(thisData[3]); // fill colour from the result field
+                var partyColor = thisPlot.Colors.forThisParty(thisData[4]); // fill colour from the result field
                 return partyColor;
             });
 
@@ -199,10 +200,10 @@ define(
                 .style("stroke-width", 2)    // set the stroke width
                 .style("opacity", .7)      // set the element opacity
                 .style("stroke", function(d){
-                  return thisPlot.Colors.forThisParty(d[3]); // stroke colour from the result field - change this later?return thisPlot.Colors.forThisParty("CON");
+                  return thisPlot.Colors.forThisParty(d[4]); // stroke colour from the result field - change this later?return thisPlot.Colors.forThisParty("CON");
                 })     
                 .style("fill", function(d){
-                  return thisPlot.Colors.forThisParty(d[3]); // fill colour from the result field
+                  return thisPlot.Colors.forThisParty(d[4]); // fill colour from the result field
                 }) 
                 .on("click", function(d){
                   return thisPlot.pointClicked(d,this); // send rown of data and svg element to "clicked" method.

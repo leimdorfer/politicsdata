@@ -1,21 +1,49 @@
 define([
+    'bootstrap',
     'data/data01',
+    'views',
     'plot'
-], function (dataset, Plot) {
+], function (jq, dataset, Views, Plot) { // 
 
     return {
 
         init: function () {
 
+            console.log('Set up ************  ' + new Date()); // You're up and running and this is the time  
+            ////////////////////////////////////////////////////////////////////////////////////////////////
 
-            console.log('Set up plots ************  ' + new Date()); // You're up and running and this is the time  
+            var $ = jq.$;
+            var pubsub = jq.pubsub;
 
-            this.metadata = dataset["meta01"][0];
-            this.dataset = dataset["plot01"]; // make this scale
+            var View = new Views();
 
-            //console.log(this.metadata);
- 
-            var Plot1 = new Plot(this.metadata,this.dataset);
+
+            pubsub.on('choiceMade', function () {
+
+                console.log('1: The user chose a graph');
+
+                switch (View.plotToShow) {
+                    case 'plot01':
+
+                        console.log(View.plotToShow);
+                        
+                        this.metadata = dataset["meta01"][0];
+                        this.dataset = dataset["plot01"]; // make this scale better
+             
+                        var Plot1 = new Plot(this.metadata,this.dataset);
+
+                        View.makePanelVisible('plots')
+
+                        break;
+
+                    case 'plot02':
+                        
+                        console.log('no data yet')
+
+                        break;
+                }
+
+            });
 
             return true;
         }

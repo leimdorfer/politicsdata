@@ -4,12 +4,13 @@ requirejs.config({
     baseUrl: 'js',
     paths: {
         lib: '../js/lib',
-        data: '../js/data'
+        data: '../js/data',
+        jquery: '../js/lib/jquery-1.11.3',
+        pubsub: '../js/lib/pubsub'
+
     }
 });
 
-// Start loading the main app file. Put all of
-// your application logic in there.
 
 require(['setup'], function (setup) {
 
