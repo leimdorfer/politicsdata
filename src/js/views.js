@@ -6,17 +6,6 @@ define(['bootstrap'],
     
 	    Views = function () { 	    	
 
-/*	        this.panels = {
-
-	            'p01': {
-	               'element':$('#options'),
-	               'visible':true
-	            },
-	            'p02': {
-	               'element':$('#plots'),
-	               'visible':false
-	            }
-	        }*/
 	        this.plotToShow = '';
 
 	        this.attacheEventListeners();
@@ -29,7 +18,7 @@ define(['bootstrap'],
 
 	    		thisView = this;
 
-	    		$('.content').on('click',function(event){
+	    		$('.choice').on('click',function(event){
 
 	    			var choiceClicked = $(event.target).closest('.choice');
 
@@ -38,27 +27,27 @@ define(['bootstrap'],
 	    			pubsub.emit('choiceMade');
 
 				});
-
 	    	},
 
 	        makePanelVisible:function(panel){
 
-	        	console.log('makePanelVisible');
+	            if(panel==='plots'){
 
-	            console.log(panel);
+	            	$('#choices').addClass('hide');
+            		$('#plots').removeClass('hide');
 
-	            if(panel==='choices'){
+					pubsub.emit('loadplot');
 
-						$('plots').addClass('hide');
-	            		$('choices').removeClass('hide');
-						
+				} else {
 
-					} else {
+					$('#plots').addClass('hide');
+            		$('#choices').removeClass('hide');
 
-						$('choices').addClass('hide');
-	            		$('plots').removeClass('hide');
+            		pubsub.emit('unloadplot');
 
-					}
+				}
+
+
 
 	        }
 	    }

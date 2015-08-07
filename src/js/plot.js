@@ -1,11 +1,19 @@
 define(
     ['lib/d3.v3','colors'], function (ignore, colors) {
 
-    Plot = function (metadata,dataset) { 
+    Plot = function (metadata,dataset,dataColumnsForPlot) { 
 
-        //Use global d3
+
         this.metadata = metadata;
         this.dataset = dataset;
+
+        console.log(dataColumnsForPlot['x']);
+        console.log(this.dataset);
+
+        this.names = dataColumnsForPlot['names'];
+        this.xdata = dataColumnsForPlot['x'];
+        this.ydata = dataColumnsForPlot['y'];
+        this.results = dataColumnsForPlot['results'];
         
         this.Colors = new colors(); //console.log(this.Colors.forThisParty("CON"))
         
@@ -31,7 +39,7 @@ define(
 
             for (var i=0; i<this.dataset.length; i++){
 
-                this.ddLabels[i]=this.dataset[i][0];
+                this.ddLabels[i]=this.dataset[i][this.names];
                 this.ddOptions[i]=i;
             };
 
@@ -53,7 +61,7 @@ define(
         },
 
         drawInfopanel: function(){
-            
+
             this.infopanel = d3.select("#info_panel")
                 .append("div")
                 .attr("class", "infopanel");  //Assign "infopanel" class
@@ -117,15 +125,19 @@ define(
 
             var thisPlot = this;
 
-            if( this.youClickedTheRightDot(thisData[0]) ){
+            if( this.youClickedTheRightDot(thisData[this.names]) ){
 
                 var msg = "Yes. That is: ";
 
             } else  var msg = "No. You clicked: ";
             
-            //thisPlot.infopanel.text(thisData[0]); [ "Aldershot", 63.8,  14901, "CON"]
+            //This isn't extensible  - needs work
 
-            var tx = msg + thisData[0] + ": " + thisData[4] + " majority of " + thisData[2] + ". Turnout: " + thisData[1] + "%"
+            var tx = msg + 
+                thisData[this.names] + ": " + 
+                thisData[this.results] + " majority of " + 
+                thisData[this.ydata] + ". Turnout: " + 
+                thisData[this.xdata] + "%"
 
             // var infoblock = thisPlot.infopanel.append("p")
             // .attr("class", "resultblock");
@@ -223,19 +235,23 @@ define(
 
                 d3.select(".x.axis") 
                     .append("text")
-                    .text(this.metadata[1]) 
+                    .text(this.metadata[this.xdata]) 
                     .attr("x", (this.w / 2) - this.padding)
                     .attr("y", this.padding / 1.5);
 
                 d3.select(".y.axis") 
                     .append("text")
-                    .text(this.metadata[2] + " (000)") 
+                    .text(this.metadata[this.ydata] + " (000)") 
                     .attr("transform", "rotate (-90, -43, 0) translate(-280)");
-
 
 
                 thisPlot.infopanel.text("Click on a dot for more info"); // data loaded instructions
 
+        },
+
+        removeAll:function(){
+
+            d3.select("#plots").remove();
         }
 
     };
