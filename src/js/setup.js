@@ -37,7 +37,7 @@ define([
                             'names':0,
                             'x':1,
                             'y':2,
-                            'results':4
+                            'results':3
                         }; // Which columns of data do you want on axis and infopanel
 
                         View.makePanelVisible('plots')

@@ -135,16 +135,16 @@ define(
 
             var tx = msg + 
                 thisData[this.names] + ": " + 
-                thisData[this.results] + " majority of " + 
-                thisData[this.ydata] + ". Turnout: " + 
-                thisData[this.xdata] + "%"
+                thisData[this.results] + " Labour vote " + 
+                thisData[this.ydata] + ". Conservative vote: " + 
+                thisData[this.xdata] + "."
 
             // var infoblock = thisPlot.infopanel.append("p")
             // .attr("class", "resultblock");
             thisPlot.infopanel.attr("class", "resultblock");
 
             thisPlot.infopanel.style("border-color", function(d) {
-                var partyColor = thisPlot.Colors.forThisParty(thisData[4]); // fill colour from the result field
+                var partyColor = thisPlot.Colors.forThisParty(thisData[3]); // fill colour from the result field
                 return partyColor;
             });
 
@@ -179,11 +179,13 @@ define(
             //console.log("plotting")
 
             var xScale = d3.scale.linear()
+                //.domain([0, d3.max(this.dataset, function(d) { return (d[1]/1000); })])
                 .domain([0, d3.max(this.dataset, function(d) { return d[1]; })])
                 .range([this.padding, this.w-this.padding*2]);
 
             var yScale = d3.scale.linear()
-                .domain([0, d3.max(this.dataset, function(d) { return (d[2]/1000); })]) // NOTE: majority is now in thousands!!
+                //.domain([0, d3.max(this.dataset, function(d) { return (d[2]/1000); })]) // NOTE: majority is now in thousands!!
+                .domain([0, d3.max(this.dataset, function(d) { return d[2]; })]) 
                 .range([this.h-this.padding, this.padding]); //
 
             //Define xAxis
@@ -203,19 +205,21 @@ define(
                 .enter()
                 .append("circle")
                 .attr("cx", function(d) {
+                  //return xScale((d[1]/1000));
                   return xScale(d[1]);
                 })
                 .attr("cy", function(d) {
-                  return yScale((d[2]/1000)); // TO DO: majority is now in thousands!! make this scale by pulling scale from metadata
+                  //return yScale((d[2]/1000)); // TO DO: majority is now in thousands!! make this scale by pulling scale from metadata
+                    return yScale(d[2]);
                 })
                 .attr("r", 8)               // set the radius
                 .style("stroke-width", 2)    // set the stroke width
                 .style("opacity", .7)      // set the element opacity
                 .style("stroke", function(d){
-                  return thisPlot.Colors.forThisParty(d[4]); // stroke colour from the result field - change this later?return thisPlot.Colors.forThisParty("CON");
+                  return thisPlot.Colors.forThisParty(d[3]); // stroke colour from the result field - change this later?return thisPlot.Colors.forThisParty("CON");
                 })     
                 .style("fill", function(d){
-                  return thisPlot.Colors.forThisParty(d[4]); // fill colour from the result field
+                  return thisPlot.Colors.forThisParty(d[3]); // fill colour from the result field
                 }) 
                 .on("click", function(d){
                   return thisPlot.pointClicked(d,this); // send rown of data and svg element to "clicked" method.
@@ -235,13 +239,13 @@ define(
 
                 d3.select(".x.axis") 
                     .append("text")
-                    .text(this.metadata[this.xdata]) 
+                    .text(this.metadata[this.xdata] )//+ " (000)") 
                     .attr("x", (this.w / 2) - this.padding)
                     .attr("y", this.padding / 1.5);
 
                 d3.select(".y.axis") 
                     .append("text")
-                    .text(this.metadata[this.ydata] + " (000)") 
+                    .text(this.metadata[this.ydata] )//+ " (000)") 
                     .attr("transform", "rotate (-90, -43, 0) translate(-280)");
 
 
